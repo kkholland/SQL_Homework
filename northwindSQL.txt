@@ -1,0 +1,41 @@
+
+-- 1. all employees in territory Boston: 1 Andrew Fuller
+SELECT t.territory_id, t.territory_description, et.employee_id, 
+	e.last_name, e.first_name, e.title from territories t 
+inner join employee_territories et on et.territory_id = t.territory_id
+inner join employees e on e.employee_id = et.employee_id
+where t.territory_description = 'Boston'
+group by t.territory_id, et.employee_id, e.employee_id;
+
+
+-- 2. which customer has the most orders: Save-a-lot Markets
+select o.customer_id, c.company_name, COUNT(o.order_id) from orders o
+inner join customers c on c.customer_id = o.customer_id
+GROUP BY o.customer_id, c.company_name
+ORDER BY count DESC;
+
+
+-- 3. produce a list of all beverages, ordered by price, return 20
+Select c.category_name, p.product_name, p.unit_price from products p
+inner join categories c on c.category_id = p.category_id
+where c.category_name = 'Beverages'
+group by c.category_name, p.product_name, p.unit_price
+order by p.unit_price DESC
+limit 20;
+
+
+-- 4. what is the most expensive product? Cote de Blaye
+select product_name, unit_price from products
+order by unit_price DESC;
+
+
+-- 5. get alist of all managers, with title
+select * from employees
+where title like '%Manager%' or title like '%President%';
+
+
+-- 6. total revenue from jacks new england clam chowder: $9k?
+select p.product_name, sum( o.quantity * o.unit_price ) from order_details o
+inner join products p on o.product_id = p.product_id
+where p.product_name = 'Jack''s New England Clam Chowder'
+group by p.product_name;
