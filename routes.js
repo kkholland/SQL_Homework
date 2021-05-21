@@ -143,7 +143,7 @@ router.get('/cities/:id', async (req, res) => {
     });
 
     if (!result) {
-        return res.status(404).send('The climate could not be found');
+        return res.status(404).send('The city could not be found');
     }
 
     res.json(result);
@@ -234,9 +234,72 @@ router.put('/states/:abbrev', async (req, res) => {
 
 
 //update a city
+router.put('/cities/:id', async (req, res) => {
+
+    try{
+        const result = await db.one('SELECT city_name FROM cities WHERE id = $(id);', {
+            id: +req.params.id
+        });
+    
+        if (!result) {
+            return res.status(404).send('The city could not be found');
+        }
+
+        await db.oneOrNone('UPDATE cities SET state_abbrev = $(newAbbrev), city_name = $(newCity_name), climate = $(newClimate) WHERE id = $(id)', {
+            id: +req.params.id,
+            newAbbrev: req.body.abbrev,
+            newCity_name: req.body.city_name,
+            newClimate: req.body.climate,
+        });
+
+        const newCity = await db.one('SELECT * FROM cities WHERE id = $(id)', {
+            id: +req.params.id
+        });
+
+        res.status(201).json(newCity);
+
+    } catch (error) {
+        
+        console.log(error);
+        res.status(500).send(error);
+    }
+    
+});
+
+
 
 //update a temp
+router.put('/temperatures/:id', async (req, res) => {
 
+    try{
+        const result = await db.one('SELECT temperature FROM temperatures WHERE id = $(id);', {
+            id: +req.params.id
+        });
+    
+        if (!result) {
+            return res.status(404).send('The temperature record could not be found');
+        }
+
+        await db.oneOrNone('UPDATE temperatures SET city_id = $(newCityId), temperature = $(newTemperature), date = $(newDate) WHERE id = $(id)', {
+            id: +req.params.id,
+            newCityId: +req.body.city_id,
+            newTemperature: +req.body.temperature,
+            newDate: req.body.date,
+        });
+
+        const newTemp = await db.one('SELECT * FROM temperatures WHERE id = $(id)', {
+            id: +req.params.id
+        });
+
+        res.status(201).json(newTemp);
+
+    } catch (error) {
+        
+        console.log(error);
+        res.status(500).send(error);
+    }
+    
+});
 
 
 
